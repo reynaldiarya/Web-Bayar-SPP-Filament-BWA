@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\TransactionResource\Pages;
 use App\Filament\Resources\TransactionResource\RelationManagers;
+use App\Models\Departement;
 use App\Models\Transaction;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -25,19 +26,38 @@ class TransactionResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('code')
                     ->required()
+                    ->default('TRX-' . mt_rand(1000, 9999))
                     ->maxLength(255),
-                Forms\Components\TextInput::make('payment_method')
-                    ->maxLength(255),
+                Forms\Components\Select::make('user_id')
+                    ->required()
+                    ->relationship('user', 'name'),
                 Forms\Components\TextInput::make('payment_status')
+                    ->readOnly()
+                    ->default('PENDING')
                     ->maxLength(255),
-                Forms\Components\TextInput::make('payment_proof')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('user_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('departement_id')
-                    ->required()
-                    ->numeric(),
+                Forms\Components\FieldSet::make('Departement')
+                    ->schema([
+                        Forms\Components\Select::make('departement_id')
+                            ->required()
+                            ->label('Departement & Semester')
+                            ->options(Departement::query()->get()->mapWithKeys(function ($departement) {
+                                return [
+                                    $departement->id => $departement->name . ' - Semester ' . $departement->semester
+                                ];
+                            })->toArray())
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                if ($departement = Departement::find($state)) {
+                                    $set('departement_cost', $departement->cost);
+                                } else {
+                                    $set('departement_cost', null);
+                                }
+                            }),
+
+                        Forms\Components\TextInput::make('departement_cost')
+                            ->label('Rp')
+                            ->disabled(),
+                    ]),
             ]);
     }
 
@@ -47,18 +67,30 @@ class TransactionResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('code')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('user.name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('user.phone')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('payment_method')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('payment_status')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'PENDING' => 'warning',
+                        'SUCCESS' => 'green',
+                        'FAILED' => 'red',
+                        default => 'secondary',
+                    }),
+                Tables\Columns\ImageColumn::make('payment_proof')
+                    ->label('Bukti Pembayaran')
+                    ->width(450)
+                    ->height(225),
+                Tables\Columns\TextColumn::make('departement.name')
+                    ->label('Departement')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('payment_proof')
+                Tables\Columns\TextColumn::make('departement.semester')
+                    ->label('Semester')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('user_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('departement_id')
-                    ->numeric()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
