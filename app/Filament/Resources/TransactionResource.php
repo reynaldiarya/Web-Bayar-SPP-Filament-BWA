@@ -132,4 +132,12 @@ class TransactionResource extends Resource
     {
         return 3; // Urutan pertama
     }
+    public static function getNavigationIcon(): string
+    {
+        return 'heroicon-o-clipboard-document-list';  // Ikon outline
+    }
+    public static function getTitle(): string
+    {
+        return 'Transaction'; // Ganti dengan title yang Anda inginkan
+    }
 }

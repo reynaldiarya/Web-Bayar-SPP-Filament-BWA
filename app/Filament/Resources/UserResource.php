@@ -104,5 +104,13 @@ class UserResource extends Resource
     public static function getNavigationSort(): int
     {
         return 1; // Urutan pertama
+    } 
+    public static function getNavigationIcon(): string
+    {
+        return 'heroicon-o-user';  // Ikon outline
+    }
+    public static function getTitle(): string
+    {
+        return 'User'; // Ganti dengan title yang Anda inginkan
     }
 }

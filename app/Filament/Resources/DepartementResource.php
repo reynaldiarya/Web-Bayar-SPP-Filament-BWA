@@ -91,4 +91,12 @@ class DepartementResource extends Resource
     {
         return 2; // Urutan pertama
     }
+    public static function getNavigationIcon(): string
+    {
+        return 'heroicon-o-building-office';  // Ikon outline
+    }
+    public static function getTitle(): string
+    {
+        return 'Departement'; // Ganti dengan title yang Anda inginkan
+    }
 }
