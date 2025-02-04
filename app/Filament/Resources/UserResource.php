@@ -30,10 +30,10 @@ class UserResource extends Resource
                     ->email()
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('password')
-                    ->password()
-                    ->required()
-                    ->maxLength(255),
+                // Forms\Components\TextInput::make('password')
+                //     ->password()
+                //     ->required()
+                //     ->maxLength(255),
                 Forms\Components\TextInput::make('phone')
                     ->tel()
                     ->maxLength(255),
@@ -56,8 +56,14 @@ class UserResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phone')
                     ->searchable(),
-                Tables\Columns\ImageColumn::make('image'),
-                Tables\Columns\ImageColumn::make('scanijazah'),
+                Tables\Columns\ImageColumn::make('image')
+                    ->getStateUsing(fn($record) => asset('storage/' . $record->image))
+                    ->width( 45)
+                    ->height(45),
+                Tables\Columns\ImageColumn::make('scanijazah')
+                ->getStateUsing(fn ($record) => asset('storage/' . $record->scanijazah))
+                ->width(45)
+                ->height(45),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -94,5 +100,9 @@ class UserResource extends Resource
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
+    }
+    public static function getNavigationSort(): int
+    {
+        return 1; // Urutan pertama
     }
 }

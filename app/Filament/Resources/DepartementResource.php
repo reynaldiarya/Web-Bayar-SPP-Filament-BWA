@@ -85,4 +85,10 @@ class DepartementResource extends Resource
             'edit' => Pages\EditDepartement::route('/{record}/edit'),
         ];
     }
+    
+
+    public static function getNavigationSort(): int
+    {
+        return 2; // Urutan pertama
+    }
 }

@@ -128,4 +128,8 @@ class TransactionResource extends Resource
             'edit' => Pages\EditTransaction::route('/{record}/edit'),
         ];
     }
+    public static function getNavigationSort(): int
+    {
+        return 3; // Urutan pertama
+    }
 }
