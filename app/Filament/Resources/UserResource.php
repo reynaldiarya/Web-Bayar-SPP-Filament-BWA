@@ -30,16 +30,17 @@ class UserResource extends Resource
                     ->email()
                     ->required()
                     ->maxLength(255),
-                // Forms\Components\TextInput::make('password')
-                //     ->password()
-                //     ->required()
-                //     ->maxLength(255),
+                Forms\Components\TextInput::make('password')
+                    ->password()
+                    ->nullable()
+                    ->maxLength(255),
                 Forms\Components\TextInput::make('phone')
                     ->tel()
                     ->maxLength(255),
                 Forms\Components\FileUpload::make('image')
                     ->image()
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->disk('public'),
                 Forms\Components\FileUpload::make('scanijazah')
                     ->image()
                     ->columnSpanFull(),
