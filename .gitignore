@@ -10,6 +10,7 @@
 
 # Ignore public storage link (will be recreated automatically)
 /public/storage
+/storage/
 
 # Ignore sensitive storage files
 /storage/*.key
