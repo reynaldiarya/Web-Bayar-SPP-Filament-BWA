@@ -44,6 +44,12 @@ class UserResource extends Resource
                 Forms\Components\FileUpload::make('scanijazah')
                     ->image()
                     ->columnSpanFull(),
+                Forms\Components\Select::make('roles')
+                    ->multiple()
+                    ->relationship('roles', 'name')
+                    ->preload()
+                    ->required(),
+            
             ]);
     }
 
@@ -65,6 +71,7 @@ class UserResource extends Resource
                 ->getStateUsing(fn ($record) => asset('storage/' . $record->scanijazah))
                 ->width(45)
                 ->height(45),
+                Tables\Columns\TextColumn::make('roles.name'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
