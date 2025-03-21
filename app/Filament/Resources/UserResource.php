@@ -41,7 +41,7 @@ class UserResource extends Resource
                     ->image()
                     ->columnSpanFull()
                     ->disk('public'),
-                Forms\Components\FileUpload::make('scanijazah')
+                Forms\Components\FileUpload::make('scanned_diploma')
                     ->image()
                     ->columnSpanFull(),
                 Forms\Components\Select::make('roles')
@@ -49,13 +49,14 @@ class UserResource extends Resource
                     ->relationship('roles', 'name')
                     ->preload()
                     ->required(),
-            
+
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
+            ->recordUrl(null)
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
@@ -64,13 +65,21 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('phone')
                     ->searchable(),
                 Tables\Columns\ImageColumn::make('image')
-                    ->getStateUsing(fn($record) => asset('storage/' . $record->image))
-                    ->width( 45)
+                    ->getStateUsing(
+                        fn($record) => $record->image
+                            ? asset('storage/' . $record->image)
+                            : null
+                    )
+                    ->width(45)
                     ->height(45),
-                Tables\Columns\ImageColumn::make('scanijazah')
-                ->getStateUsing(fn ($record) => asset('storage/' . $record->scanijazah))
-                ->width(45)
-                ->height(45),
+                Tables\Columns\ImageColumn::make('scanned_diploma')
+                    ->getStateUsing(
+                        fn($record) => $record->scanned_diploma
+                            ? asset('storage/' . $record->scanned_diploma)
+                            : null
+                    )
+                    ->width(45)
+                    ->height(45),
                 Tables\Columns\TextColumn::make('roles.name'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -112,7 +121,7 @@ class UserResource extends Resource
     public static function getNavigationSort(): int
     {
         return 1; // Urutan pertama
-    } 
+    }
     public static function getNavigationIcon(): string
     {
         return 'heroicon-o-user';  // Ikon outline

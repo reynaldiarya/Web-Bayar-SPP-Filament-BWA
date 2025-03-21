@@ -32,20 +32,24 @@ class AdminTransaction extends BaseWidget
                 Tables\Columns\TextColumn::make('departement.semester')
                     ->label('Semester'),
                 Tables\Columns\TextColumn::make('payment_method')
-                ->label('Payment Method'),
+                    ->label('Payment Method'),
                 Tables\Columns\TextColumn::make('payment_status')
                     ->label('Payment Status')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         'PENDING' => 'warning',
-                        'SUCCESS' => 'green',
+                        'SUCCESS' => 'success',
                         'FAILED' => 'red',
                         default => 'secondary',
                     }),
                 Tables\Columns\ImageColumn::make('payment_proof')
-                    ->label('Payment Proof')
-                    ->width(450)
-                    ->height(225),
+                    ->getStateUsing(
+                        fn($record) => $record->payment_proof
+                            ? asset('storage/' . $record->payment_proof)
+                            : null
+                    )
+                    ->width(160)
+                    ->height(120),
                 Tables\Columns\TextColumn::make('departement.cost')
                     ->label('Cost')
                     ->money('IDR'),

@@ -7,12 +7,15 @@ use App\Filament\Resources\TransactionResource\RelationManagers;
 use App\Models\Departement;
 use App\Models\Transaction;
 use Filament\Forms;
+use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Support\RawJs;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Str;
 
 class TransactionResource extends Resource
 {
@@ -26,9 +29,9 @@ class TransactionResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('code')
                     ->required()
-                    ->default('TRX-' . mt_rand(1000, 9999))
+                    ->default('TRX-' . strtoupper(Str::random(8)) . '-' . hexdec(uniqid()))
                     ->maxLength(255),
-                Forms\Components\Select::make('user_id')
+                Forms\Components\Select::make('user_uuid')
                     ->required()
                     ->relationship('user', 'name'),
                 Forms\Components\TextInput::make('payment_status')
@@ -37,26 +40,28 @@ class TransactionResource extends Resource
                     ->maxLength(255),
                 Forms\Components\FieldSet::make('Departement')
                     ->schema([
-                        Forms\Components\Select::make('departement_id')
+                        Forms\Components\Select::make('departement_uuid')
                             ->required()
                             ->label('Departement & Semester')
                             ->options(Departement::query()->get()->mapWithKeys(function ($departement) {
                                 return [
-                                    $departement->id => $departement->name . ' - Semester ' . $departement->semester
+                                    $departement->uuid => $departement->name . ' - Semester ' . $departement->semester
                                 ];
                             })->toArray())
                             ->reactive()
                             ->afterStateUpdated(function ($state, callable $set) {
                                 if ($departement = Departement::find($state)) {
-                                    $set('departement_cost', $departement->cost);
+                                    $formattedCost = number_format($departement->cost, 0, '.', ',');
+                                    $set('departement_cost', $formattedCost);
                                 } else {
                                     $set('departement_cost', null);
                                 }
                             }),
 
                         Forms\Components\TextInput::make('departement_cost')
-                            ->label('Rp')
-                            ->disabled(),
+                            ->label('Biaya')
+                            ->disabled()
+                            ->prefix('Rp'),
                     ]),
             ]);
     }
@@ -64,6 +69,7 @@ class TransactionResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->recordUrl(null)
             ->columns([
                 Tables\Columns\TextColumn::make('code')
                     ->searchable(),
@@ -77,14 +83,18 @@ class TransactionResource extends Resource
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         'PENDING' => 'warning',
-                        'SUCCESS' => 'green',
+                        'SUCCESS' => 'success',
                         'FAILED' => 'red',
                         default => 'secondary',
                     }),
                 Tables\Columns\ImageColumn::make('payment_proof')
-                    ->label('Bukti Pembayaran')
-                    ->width(450)
-                    ->height(225),
+                    ->getStateUsing(
+                        fn($record) => $record->payment_proof
+                            ? asset('storage/' . $record->payment_proof)
+                            : null
+                    )
+                    ->width(160)
+                    ->height(120),
                 Tables\Columns\TextColumn::make('departement.name')
                     ->label('Departement')
                     ->searchable(),
@@ -105,6 +115,20 @@ class TransactionResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('approve')
+                    ->label('Approve')
+                    ->color('success')
+                    ->icon('heroicon-o-check-circle')
+                    ->visible(fn(Transaction $record): bool => $record->payment_status == 'PENDING')
+                    ->action(function (Transaction $record): void {
+                        $record->update([
+                            'payment_status' => 'SUCCESS',
+                        ]);
+                    })
+                    ->requiresConfirmation()
+                    ->modalHeading('Approve Transaction')
+                    ->modalDescription('Are you sure you want to approve this transaction?')
+                    ->modalSubmitActionLabel('Approve'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

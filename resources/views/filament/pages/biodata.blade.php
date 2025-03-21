@@ -24,7 +24,7 @@
                 </div>
             </div>
 
-            <!-- Gambar & Scan Ijazah (image and scanijazah) on the right side -->
+            <!-- Gambar & Scan Diploma (image and scanned_diploma) on the right side -->
             <div class="grid grid-cols-2 gap-6">
                 <div>
                     <label class="block text-gray-400 font-medium mb-1">Foto:</label>
@@ -34,10 +34,10 @@
                 </div>
 
                 <div>
-                    <label class="block text-gray-400 font-medium mb-1">Scan Ijazah:</label>
-                    <img src="{{ $user->scanijazah ? asset('storage/' . $user->scanijazah) : asset('images/default-ijazah.png') }}"
-                        alt="Scan Ijazah" class="w-32 h-auto object-cover rounded-md border cursor-pointer"
-                        x-on:click="$dispatch('open-modal', { id: 'image-modal', image: '{{ $user->scanijazah ? asset('storage/' . $user->scanijazah) : asset('images/default-ijazah.png') }}' })">
+                    <label class="block text-gray-400 font-medium mb-1">Scan Diploma:</label>
+                    <img src="{{ $user->scanned_diploma ? asset('storage/' . $user->scanned_diploma) : asset('images/default-ijazah.png') }}"
+                        alt="Scan Diploma" class="w-32 h-auto object-cover rounded-md border cursor-pointer"
+                        x-on:click="$dispatch('open-modal', { id: 'image-modal', image: '{{ $user->scanned_diploma ? asset('storage/' . $user->scanned_diploma) : asset('images/default-ijazah.png') }}' })">
                 </div>
             </div>
         </div>

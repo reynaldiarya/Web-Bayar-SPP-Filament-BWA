@@ -31,19 +31,16 @@ class Register extends AuthRegister
                             ->columnSpanFull()
                             ->required()
                             ->image()
+                            ->directory('images')
                             ->placeholder('Upload Your Profile Picture'),
-                        FileUpload::make('scanijazah')
-                            ->label('Scan Ijazah')
+                        FileUpload::make('scanned_diploma')
                             ->columnSpanFull()
                             ->required()
                             ->image()
-                            ->placeholder('Upload Your Ijazah Picture'),
-
-                    ])
-
-                    ->statePath('data'),
+                            ->directory('scanned-diplomas')
+                            ->placeholder('Upload Your Diploma Picture'),
+                    ])->statePath('data'),
             )
-
         ];
     }
 
@@ -56,7 +53,7 @@ class Register extends AuthRegister
             'password' => Hash::make($data['password']),
             'phone' => $this->state['data']['phone'],
             'image' => $this->state['data']['image'],
-            'scanijazah' => $this->state['data']['scanijazah'],
+            'scanned_diploma' => $this->state['data']['scanned_diploma'],
         ]);
 
         Auth::login($user);

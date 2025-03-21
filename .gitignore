@@ -1,30 +1,14 @@
-# Ignore .phpunit.cache file
 /.phpunit.cache
-
-# Ignore node_modules
 /node_modules
-
-# Ignore build files
 /public/build
 /public/hot
-
-# Ignore public storage link (will be recreated automatically)
 /public/storage
-/storage/
-
-# Ignore sensitive storage files
 /storage/*.key
 /storage/pail
-
-# Ignore vendor folder
 /vendor
-
-# Ignore .env files
 .env
 .env.backup
 .env.production
-
-# Ignore other system files
 .phpactor.json
 .phpunit.result.cache
 Homestead.json
@@ -32,8 +16,6 @@ Homestead.yaml
 npm-debug.log
 yarn-error.log
 /auth.json
-
-# Ignore editor config files
 /.fleet
 /.idea
 /.nova

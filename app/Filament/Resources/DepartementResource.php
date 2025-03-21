@@ -8,6 +8,7 @@ use App\Models\Departement;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Support\RawJs;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -32,6 +33,8 @@ class DepartementResource extends Resource
                 Forms\Components\TextInput::make('cost')
                     ->required()
                     ->numeric()
+                    ->mask(RawJs::make('$money($input)'))
+                    ->stripCharacters(',')
                     ->prefix('Rp'),
             ]);
     }
@@ -39,6 +42,7 @@ class DepartementResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->recordUrl(null)
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
@@ -46,7 +50,10 @@ class DepartementResource extends Resource
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('cost')
-                    ->money('IDR')
+                    ->formatStateUsing(function ($state) {
+                        $formatted = number_format($state, 0, '.', ',');
+                        return "Rp $formatted";
+                    })
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -85,7 +92,7 @@ class DepartementResource extends Resource
             'edit' => Pages\EditDepartement::route('/{record}/edit'),
         ];
     }
-    
+
 
     public static function getNavigationSort(): int
     {
