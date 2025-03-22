@@ -25,19 +25,26 @@ class Register extends AuthRegister
                             ->tel()
                             ->required()
                             ->label('Phone Number')
-                            ->placeholder('Enter Your Phone Number'),
+                            ->placeholder('Enter Your Phone Number')
+                            ->maxLength(20),
                         FileUpload::make('image')
                             ->label('Profile Picture')
                             ->columnSpanFull()
                             ->required()
                             ->image()
+                            ->disk(env('FILAMENT_FILESYSTEM_DISK'))
                             ->directory('images')
+                            ->previewable(true)
+                            ->visibility('private')
                             ->placeholder('Upload Your Profile Picture'),
                         FileUpload::make('scanned_diploma')
                             ->columnSpanFull()
                             ->required()
                             ->image()
+                            ->disk(env('FILAMENT_FILESYSTEM_DISK'))
                             ->directory('scanned-diplomas')
+                            ->previewable(true)
+                            ->visibility('private')
                             ->placeholder('Upload Your Diploma Picture'),
                     ])->statePath('data'),
             )

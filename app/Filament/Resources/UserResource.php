@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Storage;
 
 class UserResource extends Resource
 {
@@ -39,10 +40,17 @@ class UserResource extends Resource
                     ->maxLength(255),
                 Forms\Components\FileUpload::make('image')
                     ->image()
-                    ->columnSpanFull()
-                    ->disk('public'),
+                    ->disk(env('FILAMENT_FILESYSTEM_DISK'))
+                    ->directory('images')
+                    ->previewable(true)
+                    ->visibility('private')
+                    ->columnSpanFull(),
                 Forms\Components\FileUpload::make('scanned_diploma')
                     ->image()
+                    ->disk(env('FILAMENT_FILESYSTEM_DISK'))
+                    ->directory('scanned-diplomas')
+                    ->previewable(true)
+                    ->visibility('private')
                     ->columnSpanFull(),
                 Forms\Components\Select::make('roles')
                     ->multiple()
@@ -57,6 +65,7 @@ class UserResource extends Resource
     {
         return $table
             ->recordUrl(null)
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
@@ -67,7 +76,11 @@ class UserResource extends Resource
                 Tables\Columns\ImageColumn::make('image')
                     ->getStateUsing(
                         fn($record) => $record->image
-                            ? asset('storage/' . $record->image)
+                            ? (
+                                Storage::exists($record->image)
+                                ? route('file.get', $record->image)
+                                : null
+                            )
                             : null
                     )
                     ->width(45)
@@ -75,7 +88,11 @@ class UserResource extends Resource
                 Tables\Columns\ImageColumn::make('scanned_diploma')
                     ->getStateUsing(
                         fn($record) => $record->scanned_diploma
-                            ? asset('storage/' . $record->scanned_diploma)
+                            ? (
+                                Storage::exists($record->scanned_diploma)
+                                ? route('file.get', $record->scanned_diploma)
+                                : null
+                            )
                             : null
                     )
                     ->width(45)

@@ -31,10 +31,10 @@ class Payment extends Page
     public function mount(string $uuid): void
     {
         $this->transaction = Transaction::findorFail($uuid);
-        $this->data = [
+        $this->form->fill([
             'payment_method' => $this->transaction->payment_method ?? null,
             'payment_proof' => $this->transaction->payment_proof ?? null,
-        ];
+        ]);
     }
 
     public function form(Form $form): Form
@@ -54,7 +54,10 @@ class Payment extends Page
                         FileUpload::make('payment_proof')
                             ->image()
                             ->required()
+                            ->disk(env('FILAMENT_FILESYSTEM_DISK'))
                             ->directory('payment-proofs')
+                            ->previewable(true)
+                            ->visibility('private')
                             ->columnSpanFull(),
                     ])
             ])->statePath('data');

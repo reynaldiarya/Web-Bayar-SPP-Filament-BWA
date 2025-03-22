@@ -9,7 +9,6 @@ class FileController extends Controller
 {
     public function getFile($fileName)
     {
-        $fileName = 'public/'.$fileName; 
         if (!Storage::exists($fileName)) {
             return abort(404);
         }

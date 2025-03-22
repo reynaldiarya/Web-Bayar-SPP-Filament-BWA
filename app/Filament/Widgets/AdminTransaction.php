@@ -7,6 +7,7 @@ use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
+use Illuminate\Support\Facades\Storage;
 
 class AdminTransaction extends BaseWidget
 {
@@ -38,14 +39,18 @@ class AdminTransaction extends BaseWidget
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         'PENDING' => 'warning',
-                        'SUCCESS' => 'success',
-                        'FAILED' => 'red',
+                        'APPROVED' => 'success',
+                        'REJECTED' => 'danger',
                         default => 'secondary',
                     }),
                 Tables\Columns\ImageColumn::make('payment_proof')
                     ->getStateUsing(
                         fn($record) => $record->payment_proof
-                            ? asset('storage/' . $record->payment_proof)
+                            ? (
+                                Storage::exists($record->payment_proof)
+                                ? route('file.get', $record->payment_proof)
+                                : null
+                            )
                             : null
                     )
                     ->width(160)

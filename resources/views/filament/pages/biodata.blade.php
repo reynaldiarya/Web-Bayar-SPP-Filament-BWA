@@ -28,16 +28,16 @@
             <div class="grid grid-cols-2 gap-6">
                 <div>
                     <label class="block text-gray-400 font-medium mb-1">Foto:</label>
-                    <img src="{{ $user->image ? asset('storage/' . $user->image) : asset('images/default-user.png') }}"
+                    <img src="{{ $user->image ? route('file.get', $user->image) : asset('images/default-user.png') }}"
                         alt="Gambar" class="w-32 h-auto object-cover rounded-md border cursor-pointer"
-                        x-on:click="$dispatch('open-modal', { id: 'image-modal', image: '{{ $user->image ? asset('storage/' . $user->image) : asset('images/default-user.png') }}' })">
+                        x-on:click="$dispatch('open-modal', { id: 'image-modal', image: '{{ $user->image ? route('file.get', $user->image) : asset('images/default-user.png') }}' })">
                 </div>
 
                 <div>
                     <label class="block text-gray-400 font-medium mb-1">Scan Diploma:</label>
-                    <img src="{{ $user->scanned_diploma ? asset('storage/' . $user->scanned_diploma) : asset('images/default-ijazah.png') }}"
+                    <img src="{{ $user->scanned_diploma ? route('file.get', $user->scanned_diploma) : asset('images/default-ijazah.png') }}"
                         alt="Scan Diploma" class="w-32 h-auto object-cover rounded-md border cursor-pointer"
-                        x-on:click="$dispatch('open-modal', { id: 'image-modal', image: '{{ $user->scanned_diploma ? asset('storage/' . $user->scanned_diploma) : asset('images/default-ijazah.png') }}' })">
+                        x-on:click="$dispatch('open-modal', { id: 'image-modal', image: '{{ $user->scanned_diploma ? route('file.get', $user->scanned_diploma) : asset('images/default-ijazah.png') }}' })">
                 </div>
             </div>
         </div>
@@ -64,8 +64,7 @@
                     :style="'transform: scale(' + scale + ') translate(' + offsetX + 'px, ' + offsetY + 'px);'"
                     x-on:mousedown="isDragging = true; startX = $event.clientX; startY = $event.clientY; $event.preventDefault();"
                     x-on:mousemove="if (isDragging) { offsetX += $event.clientX - startX; offsetY += $event.clientY - startY; startX = $event.clientX; startY = $event.clientY; }"
-                    x-on:mouseup="isDragging = false;"
-                    x-on:mouseleave="isDragging = false;"
+                    x-on:mouseup="isDragging = false;" x-on:mouseleave="isDragging = false;"
                     x-on:wheel="scale = Math.max(1, Math.min(scale + $event.deltaY * -0.002, 3))">
             </div>
         </div>

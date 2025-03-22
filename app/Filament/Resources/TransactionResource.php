@@ -15,6 +15,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class TransactionResource extends Resource
@@ -70,6 +71,7 @@ class TransactionResource extends Resource
     {
         return $table
             ->recordUrl(null)
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('code')
                     ->searchable(),
@@ -83,14 +85,18 @@ class TransactionResource extends Resource
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         'PENDING' => 'warning',
-                        'SUCCESS' => 'success',
-                        'FAILED' => 'red',
+                        'APPROVED' => 'success',
+                        'REJECTED' => 'danger',
                         default => 'secondary',
                     }),
                 Tables\Columns\ImageColumn::make('payment_proof')
                     ->getStateUsing(
                         fn($record) => $record->payment_proof
-                            ? asset('storage/' . $record->payment_proof)
+                            ? (
+                                Storage::exists($record->payment_proof)
+                                ? route('file.get', $record->payment_proof)
+                                : null
+                            )
                             : null
                     )
                     ->width(160)
@@ -114,7 +120,6 @@ class TransactionResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('approve')
                     ->label('Approve')
                     ->color('success')
@@ -122,13 +127,27 @@ class TransactionResource extends Resource
                     ->visible(fn(Transaction $record): bool => $record->payment_status == 'PENDING')
                     ->action(function (Transaction $record): void {
                         $record->update([
-                            'payment_status' => 'SUCCESS',
+                            'payment_status' => 'APPROVED',
                         ]);
                     })
                     ->requiresConfirmation()
                     ->modalHeading('Approve Transaction')
                     ->modalDescription('Are you sure you want to approve this transaction?')
                     ->modalSubmitActionLabel('Approve'),
+                Tables\Actions\Action::make('reject')
+                    ->label('Reject')
+                    ->color('danger')
+                    ->icon('heroicon-o-x-circle')
+                    ->visible(fn(Transaction $record): bool => $record->payment_status == 'PENDING')
+                    ->action(function (Transaction $record): void {
+                        $record->update([
+                            'payment_status' => 'REJECTED',
+                        ]);
+                    })
+                    ->requiresConfirmation()
+                    ->modalHeading('Reject Transaction')
+                    ->modalDescription('Are you sure you want to Reject this transaction?')
+                    ->modalSubmitActionLabel('Reject'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

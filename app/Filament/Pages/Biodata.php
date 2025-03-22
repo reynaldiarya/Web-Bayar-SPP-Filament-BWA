@@ -55,15 +55,29 @@ class Biodata extends Page
                             ->maxLength(255),
                         TextInput::make('phone')
                             ->tel()
-                            ->maxLength(255),
+                            ->required()
+                            ->label('Phone Number')
+                            ->placeholder('Enter Your Phone Number')
+                            ->maxLength(20),
                         FileUpload::make('image')
+                            ->label('Profile Picture')
+                            ->columnSpanFull()
+                            ->required()
                             ->image()
+                            ->disk(env('FILAMENT_FILESYSTEM_DISK'))
                             ->directory('images')
-                            ->columnSpanFull(),
+                            ->previewable(true)
+                            ->visibility('private')
+                            ->placeholder('Upload Your Profile Picture'),
                         FileUpload::make('scanned_diploma')
+                            ->columnSpanFull()
+                            ->required()
                             ->image()
+                            ->disk(env('FILAMENT_FILESYSTEM_DISK'))
                             ->directory('scanned-diplomas')
-                            ->columnSpanFull(),
+                            ->previewable(true)
+                            ->visibility('private')
+                            ->placeholder('Upload Your Diploma Picture'),
                     ])
             ])->statePath('data');
     }
@@ -79,15 +93,15 @@ class Biodata extends Page
             $this->user->password = Hash::make($validatedData['password']);
         }
 
-        if (isset($validatedData['image'])) {
-            if ($this->user->image) {
+        if (isset($validatedData['image']) && $validatedData['image'] !== $this->user->image) {
+            if ($this->user->image && Storage::exists($this->user->image)) {
                 Storage::delete($this->user->image);
             }
             $this->user->image = $validatedData['image'];
         }
 
-        if (isset($validatedData['scanned_diploma'])) {
-            if ($this->user->scanned_diploma) {
+        if (isset($validatedData['scanned_diploma']) && $validatedData['scanned_diploma'] !== $this->user->scanned_diploma) {
+            if ($this->user->scanned_diploma && Storage::exists($this->user->scanned_diploma)) {
                 Storage::delete($this->user->scanned_diploma);
             }
             $this->user->scanned_diploma = $validatedData['scanned_diploma'];
