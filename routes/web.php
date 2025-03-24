@@ -9,5 +9,5 @@ Route::get('/', function () {
 });
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/admin/payment/{uuid}', Payment::class)->name('filament.page.payment');
+    Route::get('/file/{fileName}', [FileController::class, 'getFile'])->where('fileName', '.*')->name('file.get');
 });
-Route::get('/file/{fileName}', [FileController::class, 'getFile'])->where('fileName', '.*')->name('file.get');
